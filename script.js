@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         id: 1,
         name: 'Raul Nieves',
-        role: 'Data Analyst',
+        role: 'TSA / IA Engineering',
         photo:
           'https://github.com/cloudautomate022-sys/Cloudautomate/blob/main/Photo/member-1-1790775999901.png',
       },
