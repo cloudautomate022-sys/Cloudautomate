@@ -1,0 +1,4 @@
+Cloud Automate Contact Messages
+
+This file is generated from the website contact form submissions.
+Each time a customer submits the form, the message is saved in the private admin panel and can be exported here as a .txt file.
