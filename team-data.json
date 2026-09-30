@@ -1,0 +1,18 @@
+{
+  "summary": "Updated team summary",
+  "photo": "/Photo/team-1790775843026.png",
+  "members": [
+    {
+      "id": 1790775999864,
+      "name": "Raul Nieves",
+      "role": "sssssssss",
+      "photo": "/Photo/member-1-1790775999901.png"
+    },
+    {
+      "id": 1790776013228,
+      "name": "juan",
+      "role": "dddddd",
+      "photo": "/Photo/member-2-1790776013237.png"
+    }
+  ]
+}

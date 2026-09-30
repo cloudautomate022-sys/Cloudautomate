@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const HISTORY_KEY = 'cloudAutomateTeamHistory';
   const CONTACT_MESSAGES_KEY = 'cloudAutomateContactMessages';
   const MAX_HISTORY_ITEMS = 8;
+  const TEAM_API_URL = '/api/team';
 
   const defaultTeamState = {
     summary:
@@ -104,32 +105,67 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminToggleButtons = document.querySelectorAll('[data-admin-toggle]');
   const closeAdminButtons = document.querySelectorAll('[data-close-admin]');
 
-  function getStoredState() {
+  async function getStoredState() {
+    try {
+      const response = await fetch(TEAM_API_URL);
+      if (response.ok) {
+        const parsed = await response.json();
+        if (parsed && Array.isArray(parsed.members)) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+          return parsed;
+        }
+      }
+    } catch (error) {
+      // fallback to localStorage below
+    }
+
     try {
       const storedState = localStorage.getItem(STORAGE_KEY);
-      if (!storedState) {
-        return structuredClone(defaultTeamState);
+      if (storedState) {
+        const parsed = JSON.parse(storedState);
+        return {
+          summary: parsed.summary || defaultTeamState.summary,
+          photo: parsed.photo || defaultTeamState.photo,
+          members: Array.isArray(parsed.members) && parsed.members.length ? parsed.members : defaultTeamState.members,
+        };
+      }
+    } catch (error) {
+      // ignore and use defaults
+    }
+
+    return structuredClone(defaultTeamState);
+  }
+
+  async function saveTeamState(nextState) {
+    const serialized = JSON.stringify(nextState);
+
+    try {
+      const response = await fetch(TEAM_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: serialized,
+      });
+
+      if (!response.ok) {
+        console.error('Failed to persist team state on server');
+        localStorage.setItem(STORAGE_KEY, serialized);
+        return;
       }
 
-      const parsed = JSON.parse(storedState);
-      return {
-        summary: parsed.summary || defaultTeamState.summary,
-        photo: parsed.photo || defaultTeamState.photo,
-        members: Array.isArray(parsed.members) && parsed.members.length ? parsed.members : defaultTeamState.members,
-      };
+      const data = await response.json();
+      const savedTeam = data && data.team ? data.team : nextState;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedTeam));
+      return savedTeam;
     } catch (error) {
-      return structuredClone(defaultTeamState);
+      console.error('Team persistence failed on server:', error);
+      localStorage.setItem(STORAGE_KEY, serialized);
     }
   }
 
-  function saveTeamState(nextState) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
-  }
-
-  function persistTeamState(nextState, options = {}) {
+  async function persistTeamState(nextState, options = {}) {
     const { saveHistory = true } = options;
 
-    saveTeamState(nextState);
+    await saveTeamState(nextState);
     if (saveHistory) {
       saveHistorySnapshot();
     }
@@ -150,8 +186,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function saveHistorySnapshot() {
-    const state = getStoredState();
+  async function saveHistorySnapshot() {
+    const state = await getStoredState();
     const history = getHistory();
 
     const snapshot = {
@@ -282,13 +318,13 @@ document.addEventListener('DOMContentLoaded', () => {
       .join('');
 
     historyList.querySelectorAll('[data-history-id]').forEach((button) => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', async () => {
         const snapshot = getHistory().find((entry) => entry.id === Number(button.dataset.historyId));
         if (!snapshot) {
           return;
         }
 
-        persistTeamState({
+        await persistTeamState({
           summary: snapshot.summary,
           photo: snapshot.photo,
           members: snapshot.members,
@@ -380,8 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
       .join('');
 
     memberList.querySelectorAll('.member-edit').forEach((button) => {
-      button.addEventListener('click', () => {
-        const selectedMember = getStoredState().members.find((member) => member.id === Number(button.dataset.memberId));
+      button.addEventListener('click', async () => {
+        const selectedMember = (await getStoredState()).members.find((member) => member.id === Number(button.dataset.memberId));
         if (selectedMember) {
           startEditingMember(selectedMember);
         }
@@ -389,16 +425,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     memberList.querySelectorAll('.member-delete').forEach((button) => {
-      button.addEventListener('click', () => {
-        const nextState = getStoredState();
+      button.addEventListener('click', async () => {
+        const nextState = await getStoredState();
         nextState.members = nextState.members.filter((member) => member.id !== Number(button.dataset.memberId));
-        persistTeamState(nextState);
+        await persistTeamState(nextState);
       });
     });
   }
 
-  function renderTeam() {
-    const state = getStoredState();
+  async function renderTeam() {
+    const state = await getStoredState();
 
     if (teamSummaryText) {
       teamSummaryText.textContent = state.summary;
@@ -562,7 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('teamSettingsForm')?.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const nextState = getStoredState();
+    const nextState = await getStoredState();
     const source = document.querySelector('input[name="teamPhotoSource"]:checked')?.value || 'url';
     const file = document.getElementById('teamPhotoUpload')?.files?.[0];
 
@@ -577,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
       nextState.photo = defaultTeamState.photo;
     }
 
-    persistTeamState(nextState);
+    await persistTeamState(nextState);
   });
 
   document.getElementById('memberForm')?.addEventListener('submit', async (event) => {
@@ -605,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
       photo = 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80';
     }
 
-    const nextState = getStoredState();
+    const nextState = await getStoredState();
     const fallbackPhoto = 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80';
 
     if (editingMemberId) {
@@ -627,17 +663,17 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    persistTeamState(nextState);
+    await persistTeamState(nextState);
     resetMemberForm();
   });
 
   memberFormCancelButton?.addEventListener('click', resetMemberForm);
 
   document.querySelectorAll('.member-delete').forEach((button) => {
-    button.addEventListener('click', () => {
-      const nextState = getStoredState();
+    button.addEventListener('click', async () => {
+      const nextState = await getStoredState();
       nextState.members = nextState.members.filter((member) => member.id !== Number(button.dataset.memberId));
-      persistTeamState(nextState);
+      await persistTeamState(nextState);
     });
   });
 
