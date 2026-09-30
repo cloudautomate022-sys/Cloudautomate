@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         name: 'Raul Nieves',
         role: 'TSA / IA Engineering',
         photo:
-          'https://github.com/cloudautomate022-sys/Cloudautomate/blob/main/Photo/RN.jpg',
+          'https://github.com/cloudautomate022-sys/Cloudautomate/blob/main/Photo/RN.jpg?raw=true',
       },
       {
         id: 2,
