@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         name: 'Raul Nieves',
         role: 'Data Analyst',
         photo:
-          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
+          'https://github.com/cloudautomate022-sys/Cloudautomate/blob/main/Photo/member-1-1790775999901.png',
       },
       {
         id: 2,
