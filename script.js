@@ -124,6 +124,16 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
   }
 
+  function persistTeamState(nextState, options = {}) {
+    const { saveHistory = true } = options;
+
+    saveTeamState(nextState);
+    if (saveHistory) {
+      saveHistorySnapshot();
+    }
+    renderTeam();
+  }
+
   function getHistory() {
     try {
       const storedHistory = localStorage.getItem(HISTORY_KEY);
@@ -276,12 +286,11 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        saveTeamState({
+        persistTeamState({
           summary: snapshot.summary,
           photo: snapshot.photo,
           members: snapshot.members,
         });
-        renderTeam();
       });
     });
   }
@@ -315,8 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
       button.addEventListener('click', () => {
         const nextState = getStoredState();
         nextState.members = nextState.members.filter((member) => member.id !== Number(button.dataset.memberId));
-        saveTeamState(nextState);
-        renderTeam();
+        persistTeamState(nextState);
       });
     });
   }
@@ -501,9 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
       nextState.photo = defaultTeamState.photo;
     }
 
-    saveTeamState(nextState);
-    saveHistorySnapshot();
-    renderTeam();
+    persistTeamState(nextState);
   });
 
   document.getElementById('memberForm')?.addEventListener('submit', async (event) => {
@@ -539,9 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
       photo: photo || 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80',
     });
 
-    saveTeamState(nextState);
-    saveHistorySnapshot();
-    renderTeam();
+    persistTeamState(nextState);
     event.target.reset();
     syncPhotoControls();
   });
@@ -550,9 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', () => {
       const nextState = getStoredState();
       nextState.members = nextState.members.filter((member) => member.id !== Number(button.dataset.memberId));
-      saveTeamState(nextState);
-      saveHistorySnapshot();
-      renderTeam();
+      persistTeamState(nextState);
     });
   });
 
