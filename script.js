@@ -378,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (password === ADMIN_PASSWORD) {
       if (teamAdminPanel) {
         teamAdminPanel.classList.remove('hidden');
+        teamAdminPanel.style.display = 'block';
       }
       toggleAdminModal(false);
       return;
@@ -389,9 +390,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function lockAdmin() {
     if (teamAdminPanel) {
       teamAdminPanel.classList.add('hidden');
+      teamAdminPanel.style.display = 'none';
     }
     adminPasswordInput.value = '';
     adminError.textContent = '';
+  }
+
+  if (teamAdminPanel) {
+    teamAdminPanel.classList.add('hidden');
+    teamAdminPanel.style.display = 'none';
   }
 
   const form = document.querySelector('.contact-form');
