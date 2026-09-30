@@ -95,6 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const teamSummaryInput = document.getElementById('teamSummaryInput');
   const teamPhotoInput = document.getElementById('teamPhotoInput');
   const memberList = document.getElementById('memberList');
+  const memberFormSubmitButton = document.getElementById('memberFormSubmitButton');
+  const memberFormCancelButton = document.getElementById('memberFormCancelButton');
   const adminPasswordModal = document.getElementById('adminPasswordModal');
   const adminPasswordInput = document.getElementById('adminPasswordInput');
   const adminError = document.getElementById('adminError');
@@ -295,6 +297,60 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  let editingMemberId = null;
+
+  function resetMemberForm() {
+    editingMemberId = null;
+
+    const nameInput = document.getElementById('memberNameInput');
+    const roleInput = document.getElementById('memberRoleInput');
+    const photoInput = document.getElementById('memberPhotoInput');
+    const sourceRadios = document.querySelectorAll('input[name="memberPhotoSource"]');
+
+    if (nameInput) nameInput.value = '';
+    if (roleInput) roleInput.value = '';
+    if (photoInput) photoInput.value = '';
+    sourceRadios.forEach((radio) => {
+      if (radio.value === 'url') {
+        radio.checked = true;
+      }
+    });
+    syncPhotoControls();
+
+    if (memberFormSubmitButton) {
+      memberFormSubmitButton.textContent = 'Add member';
+    }
+
+    if (memberFormCancelButton) {
+      memberFormCancelButton.classList.add('hidden');
+    }
+  }
+
+  function startEditingMember(member) {
+    const nameInput = document.getElementById('memberNameInput');
+    const roleInput = document.getElementById('memberRoleInput');
+    const photoInput = document.getElementById('memberPhotoInput');
+
+    if (!member || !nameInput || !roleInput || !photoInput) {
+      return;
+    }
+
+    editingMemberId = member.id;
+    nameInput.value = member.name || '';
+    roleInput.value = member.role || '';
+    photoInput.value = member.photo || '';
+
+    if (memberFormSubmitButton) {
+      memberFormSubmitButton.textContent = 'Update member';
+    }
+
+    if (memberFormCancelButton) {
+      memberFormCancelButton.classList.remove('hidden');
+    }
+
+    window.scrollTo({ top: document.body.scrollHeight * 0.25, behavior: 'smooth' });
+  }
+
   function renderMembers(members) {
     if (!memberList) {
       return;
@@ -314,11 +370,23 @@ document.addEventListener('DOMContentLoaded', () => {
               <h4>${member.name}</h4>
               <p>${member.role}</p>
             </div>
-            <button type="button" class="button button-secondary member-delete" data-member-id="${member.id}">Remove</button>
+            <div class="member-actions">
+              <button type="button" class="button button-secondary member-edit" data-member-id="${member.id}">Edit</button>
+              <button type="button" class="button button-secondary member-delete" data-member-id="${member.id}">Remove</button>
+            </div>
           </li>
         `
       )
       .join('');
+
+    memberList.querySelectorAll('.member-edit').forEach((button) => {
+      button.addEventListener('click', () => {
+        const selectedMember = getStoredState().members.find((member) => member.id === Number(button.dataset.memberId));
+        if (selectedMember) {
+          startEditingMember(selectedMember);
+        }
+      });
+    });
 
     memberList.querySelectorAll('.member-delete').forEach((button) => {
       button.addEventListener('click', () => {
@@ -538,17 +606,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const nextState = getStoredState();
-    nextState.members.push({
-      id: Date.now(),
-      name,
-      role,
-      photo: photo || 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80',
-    });
+    const fallbackPhoto = 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80';
+
+    if (editingMemberId) {
+      const memberIndex = nextState.members.findIndex((member) => member.id === editingMemberId);
+      if (memberIndex >= 0) {
+        nextState.members[memberIndex] = {
+          ...nextState.members[memberIndex],
+          name,
+          role,
+          photo: photo || nextState.members[memberIndex].photo || fallbackPhoto,
+        };
+      }
+    } else {
+      nextState.members.push({
+        id: Date.now(),
+        name,
+        role,
+        photo: photo || fallbackPhoto,
+      });
+    }
 
     persistTeamState(nextState);
-    event.target.reset();
-    syncPhotoControls();
+    resetMemberForm();
   });
+
+  memberFormCancelButton?.addEventListener('click', resetMemberForm);
 
   document.querySelectorAll('.member-delete').forEach((button) => {
     button.addEventListener('click', () => {
