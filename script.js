@@ -341,21 +341,28 @@ document.addEventListener('DOMContentLoaded', () => {
       teamPhotoInput.value = state.photo;
     }
 
+    if (memberList) {
+      renderMembers(state.members);
+    }
+
     if (teamGrid) {
       teamGrid.innerHTML = state.members
         .map(
           (member) => `
-            <div class="team-member reveal">
+            <div class="team-member reveal" style="opacity:1; transform:none;">
               <img src="${member.photo || 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80'}" alt="${member.name}" />
-              <h3>${member.name}</h3>
-              <p>${member.role}</p>
+              <div class="member-copy">
+                <h3>${member.name}</h3>
+                <p>${member.role}</p>
+              </div>
             </div>
           `
         )
         .join('');
+      teamGrid.style.display = 'grid';
+      teamGrid.style.opacity = '1';
+      teamGrid.style.visibility = 'visible';
     }
-
-    renderMembers(state.members);
   }
 
   function toggleAdminModal(show) {
@@ -376,11 +383,17 @@ document.addEventListener('DOMContentLoaded', () => {
   function unlockAdmin() {
     const password = adminPasswordInput.value.trim();
     if (password === ADMIN_PASSWORD) {
-      if (teamAdminPanel) {
-        teamAdminPanel.classList.remove('hidden');
-        teamAdminPanel.style.display = 'block';
-      }
       toggleAdminModal(false);
+
+      if (window.location.pathname.toLowerCase().endsWith('/admin.html')) {
+        if (teamAdminPanel) {
+          teamAdminPanel.classList.remove('hidden');
+          teamAdminPanel.style.display = 'block';
+        }
+        return;
+      }
+
+      window.location.href = 'admin.html';
       return;
     }
 
@@ -392,6 +405,9 @@ document.addEventListener('DOMContentLoaded', () => {
       teamAdminPanel.classList.add('hidden');
       teamAdminPanel.style.display = 'none';
     }
+    if (teamGrid) {
+      teamGrid.style.display = 'grid';
+    }
     adminPasswordInput.value = '';
     adminError.textContent = '';
   }
@@ -399,6 +415,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (teamAdminPanel) {
     teamAdminPanel.classList.add('hidden');
     teamAdminPanel.style.display = 'none';
+  }
+
+  if (teamGrid) {
+    teamGrid.style.display = 'grid';
   }
 
   const form = document.querySelector('.contact-form');

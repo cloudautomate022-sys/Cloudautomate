@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Private admin area for Cloud Automate team management and customer messages."
+    />
+    <title>Cloud Automate | Private Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a href="index.html" class="brand" aria-label="Cloud Automate home">
+          <span class="brand-mark">C</span>
+          <span class="brand-text">Cloud Automate</span>
+        </a>
+
+        <nav class="main-nav" aria-label="Main navigation">
+          <a href="index.html#about">About</a>
+          <a href="index.html#services">Services</a>
+          <a href="index.html#process">Process</a>
+          <a href="index.html#results">Results</a>
+          <a href="index.html#contact">Contact</a>
+        </nav>
+
+        <a href="index.html" class="button button-secondary">Back to site</a>
+      </div>
+    </header>
+
+    <main>
+      <div id="adminPasswordModal" class="admin-modal" aria-hidden="false">
+        <div class="admin-modal-panel">
+          <h3>Private Team Admin</h3>
+          <p>Enter the password to manage the team section.</p>
+          <label>
+            <span>Password</span>
+            <input id="adminPasswordInput" type="password" placeholder="Enter password" />
+          </label>
+          <div class="admin-modal-actions">
+            <button type="button" id="adminUnlockButton" class="button button-primary">Unlock</button>
+            <a href="index.html" class="button button-secondary">Cancel</a>
+          </div>
+          <p id="adminError" class="admin-error" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <section id="teamAdminPanel" class="team-admin" aria-live="polite" style="display: block;">
+        <div class="container">
+          <div class="admin-header">
+            <div>
+              <span class="eyebrow">Private Section</span>
+              <h2>Manage Team Details</h2>
+            </div>
+            <button type="button" id="adminLogoutButton" class="button button-secondary">Lock</button>
+          </div>
+
+          <div class="admin-grid">
+            <form id="teamSettingsForm" class="admin-form">
+              <h3>Team summary and photo</h3>
+              <label>
+                <span>Summary description</span>
+                <textarea id="teamSummaryInput" rows="5" placeholder="Write a short description of your team..."></textarea>
+              </label>
+              <div class="photo-source-row">
+                <span>Team photo</span>
+                <label class="inline-option"><input type="radio" name="teamPhotoSource" value="url" checked /> URL</label>
+                <label class="inline-option"><input type="radio" name="teamPhotoSource" value="upload" /> Upload</label>
+              </div>
+              <label id="teamPhotoUrlWrap">
+                <span>Team photo URL</span>
+                <input id="teamPhotoInput" type="url" placeholder="https://example.com/team-photo.jpg" />
+              </label>
+              <label id="teamPhotoUploadWrap" class="hidden">
+                <span>Upload team photo</span>
+                <input id="teamPhotoUpload" type="file" accept="image/*" />
+              </label>
+              <button type="submit" class="button button-primary">Save details</button>
+            </form>
+
+            <form id="memberForm" class="admin-form">
+              <h3>Add a team member</h3>
+              <label>
+                <span>Name</span>
+                <input id="memberNameInput" type="text" placeholder="Name" />
+              </label>
+              <label>
+                <span>Role</span>
+                <input id="memberRoleInput" type="text" placeholder="Role" />
+              </label>
+              <div class="photo-source-row">
+                <span>Member photo</span>
+                <label class="inline-option"><input type="radio" name="memberPhotoSource" value="url" checked /> LinkedIn URL</label>
+                <label class="inline-option"><input type="radio" name="memberPhotoSource" value="upload" /> Upload</label>
+              </div>
+              <label id="memberPhotoUrlWrap">
+                <span>Photo URL</span>
+                <input id="memberPhotoInput" type="url" placeholder="https://example.com/member-photo.jpg" />
+              </label>
+              <label id="memberPhotoUploadWrap">
+                <span>Upload profile photo</span>
+                <input id="memberPhotoUpload" type="file" accept="image/*" />
+              </label>
+              <button type="submit" class="button button-primary">Add member</button>
+            </form>
+          </div>
+
+          <div class="admin-members-box">
+            <div class="admin-members-header">
+              <h3>Current members</h3>
+            </div>
+            <ul id="memberList" class="member-list"></ul>
+          </div>
+
+          <div class="admin-members-box history-box">
+            <div class="admin-members-header">
+              <h3>Saved previous information</h3>
+            </div>
+            <ul id="historyList" class="member-list"></ul>
+          </div>
+
+          <div class="admin-members-box history-box">
+            <div class="admin-members-header">
+              <h3>Customer messages</h3>
+              <button type="button" id="downloadContactMessages" class="button button-secondary">Download .txt</button>
+            </div>
+            <ul id="contactMessagesList" class="member-list"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
