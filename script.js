@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         name: 'Raul Nieves',
         role: 'TSA / IA Engineering',
         photo:
-          'https://github.com/cloudautomate022-sys/Cloudautomate/blob/main/Photo/RN.jpg?raw=true',
+          'https://github.com/cloudautomate022-sys/Cloudautomate/blob/main/Photo/RN2.1.jpg?raw=true',
       },
       {
         id: 2,
@@ -29,9 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         id: 3,
         name: 'Juan Pablo Sanchez',
-        role: 'Security Analyst',
+        role: 'Security Architect / AI Engineering',
         photo:
-          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80',
+          'https://github.com/cloudautomate022-sys/Cloudautomate/blob/main/Photo/JPS2.1.jpeg?raw=true',
       },
     ],
   };
